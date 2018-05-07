@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Taskie</string>
+    <string name="newTask_title_hint">Enter title</string>
+    <string name="newTask_description_hint">Enter description</string>
+    <string name="edittext_newtask_duedate">Set up due date</string>
+    <string name="title_activity_list_options_menu">ListOptionsMenuActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="sort">Sort</string>
+    <string name="filter_show">filter</string>
+    <string name="high_priority_first">High priority first</string>
+    <string name="low_priority_first">Low priority first</string>
+    <string name="uncompleted">uncompleted</string>
+    <string name="all">all</string>
+</resources>
