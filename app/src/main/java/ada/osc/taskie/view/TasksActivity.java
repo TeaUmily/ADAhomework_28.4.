@@ -40,22 +40,29 @@ public class TasksActivity extends AppCompatActivity {
 	@BindView(R.id.recycler_tasks) RecyclerView mTasksRecycler;
 
 
-
-	TaskClickListener mListener = new TaskClickListener() {
+	ItemEventListener mEventListener = new ItemEventListener() {
 		@Override
 		public void onClick(Task task) {
 			toastTask(task);
 		}
-
+		
 		@Override
-		public void onLongClick(Task task) {
-			mRepository.removeTask(task);
-			updateTasksDisplay();
+		public void onToggleClick(Task task) {
+			if(!task.isCompleted()){
+				mRepository.updateTaskState(task);
+				Log.i("Terezija:", "task <"+task.getTitle()+"> changes state to completed");
+			}
+			else{
+				mRepository.updateTaskState(task);
+				Log.i("Terezija:", "task <"+task.getTitle()+"> changes state to uncompleted");
+			}
 		}
 
-	};
+		@Override
+		public void onPriorityColorClick(Task task) {
+			mRepository.changeTaskPriority(task);
+		}
 
-	ItemEventListener mEventListener = new ItemEventListener() {
 		@Override
 		public void onTaskSwipeRight(Task task) {
 			mRepository.removeTask(task);
@@ -65,18 +72,6 @@ public class TasksActivity extends AppCompatActivity {
 		@Override
 		public void onTaskSwipeLeft(Task task) {
 		    startNewTaskActivityForEdit(task);
-		}
-
-		@Override
-		public void onToggleClick(Task task) {
-			if(!task.isCompleted()){
-				task.setCompleted(true);
-				Log.i("Terezija:", "task <"+task.getTitle()+"> changes state to completed");
-			}
-			else{
-				task.setCompleted(false);
-				Log.i("Terezija:", "task <"+task.getTitle()+"> changes state to uncompleted");
-			}
 		}
 	};
 
@@ -97,7 +92,6 @@ public class TasksActivity extends AppCompatActivity {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
 		return true;
 	}
-
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -139,15 +133,12 @@ public class TasksActivity extends AppCompatActivity {
 
 		RecyclerView.ItemAnimator animator = new DefaultItemAnimator();
 
-		mTaskAdapter = new TaskAdapter(mListener, mEventListener);
+		mTaskAdapter = new TaskAdapter(mEventListener);
 
 		mTasksRecycler.setLayoutManager(layoutManager);
 		mTasksRecycler.addItemDecoration(decoration);
 		mTasksRecycler.setItemAnimator(animator);
 		mTasksRecycler.setAdapter(mTaskAdapter);
-
-
-
 	}
 
 	private void initSwipe() {
@@ -208,9 +199,5 @@ public class TasksActivity extends AppCompatActivity {
 		}
 
 	}
-
-
-
-
 
 }

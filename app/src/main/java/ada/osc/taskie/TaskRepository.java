@@ -54,4 +54,11 @@ public class TaskRepository {
 		return mDatabase.filterUncompletedTasks();
 	}
 
+    public void updateTaskState(Task task) {
+		mDatabase.updateTaskState(task);
+    }
+
+	public void changeTaskPriority(Task task) {
+		mDatabase.changeTaskPriority(task);
+	}
 }

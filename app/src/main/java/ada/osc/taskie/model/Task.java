@@ -80,4 +80,12 @@ public class Task implements Serializable{
 		}
 	}
 
+    public void changeState() {
+		if(this.isCompleted()){
+			this.setCompleted(false);
+		}
+		else {
+			this.setCompleted(true);
+		}
+    }
 }

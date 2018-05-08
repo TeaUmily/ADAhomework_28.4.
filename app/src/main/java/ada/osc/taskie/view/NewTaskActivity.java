@@ -2,9 +2,12 @@ package ada.osc.taskie.view;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -34,6 +37,7 @@ public class NewTaskActivity extends AppCompatActivity {
 	@BindView(R.id.edittext_newtask_description) EditText mDescriptionEntry;
 	@BindView(R.id.spinner_newtask_priority) Spinner mPriorityEntry;
 	@BindView(R.id.edittext_newtask_dueDate) EditText mDueDate;
+	@BindView(R.id.calendar_button) Button mCalendarBtn;
 
 	DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 	TaskRepository mRepository = TaskRepository.getInstance();
@@ -144,7 +148,7 @@ public class NewTaskActivity extends AppCompatActivity {
 	}
 
 
-	@OnClick (R.id.edittext_newtask_dueDate)
+	@OnClick (R.id.calendar_button)
 	public void pickDueDate(){
 
 		final Calendar calendar = Calendar.getInstance();

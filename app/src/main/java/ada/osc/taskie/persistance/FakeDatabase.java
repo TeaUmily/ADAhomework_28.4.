@@ -67,16 +67,20 @@ public class FakeDatabase {
 			uncompletedTasks.add(t);
 			}
 		}
-
-		StringBuilder builder= new StringBuilder();
-		for (Task t:mTasks
-			 ) {if(!t.isCompleted()){
-			 	builder.append(t.getTitle()+" ");
-				}
-			}
-		Log.i("TEREZIIJA:",builder.toString());
-
 		return uncompletedTasks;
 	}
 
+    public void updateTaskState(Task task) {
+		for (Task t:mTasks
+			 ) {
+			if (t.getId() == task.getId()) {
+				t.changeState();
+			}
+
+		}
+    }
+
+    public void changeTaskPriority(Task task) {
+		task.setNextPriority();
+    }
 }
