@@ -85,10 +85,13 @@ public class FakeDatabase {
 		task.setNextPriority();
     }
 
-    public void updateTask(String title, String description, TaskPriority priority, Date date, int id) {
+    public void updateTask(Task task) {
 		for (Task t:mTasks
-				) {if(t.getId() == id){
-			t.updateTask(title, description, priority, date);
+				) {if(t.getId() == task.getId()){
+			t.setTitle(task.getTitle());
+			t.setDescription(task.getDescription());
+			t.setPriority(task.getPriority());
+			t.setDueDate(task.getDueDate());
 			}
 		}
 	}

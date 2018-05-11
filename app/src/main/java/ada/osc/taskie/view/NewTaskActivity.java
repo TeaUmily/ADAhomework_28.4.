@@ -103,7 +103,8 @@ public class NewTaskActivity extends AppCompatActivity {
 			mRepository.getTaskById(id).setDescription(description);
 			mRepository.getTaskById(id).setPriority(priority);
 			mRepository.getTaskById(id).setDueDate(date);
-			//mRepository.updateTask(title,description,priority,date,id);
+
+			mRepository.updateTask(mRepository.getTaskById(id));
 
 		    finish();
         }

@@ -89,11 +89,4 @@ public class Task implements Serializable{
 		}
     }
 
-    public void updateTask(String title, String description, TaskPriority priority, Date date) {
-
-			this.mTitle = title;
-			this.mDescription = description;
-			this.mPriority = priority;
-			this.mDueDate = date;
-		}
 }

@@ -64,7 +64,8 @@ public class TaskRepository {
 		mDatabase.changeTaskPriority(task);
 	}
 
-    public void updateTask(String title, String description, TaskPriority priority, Date date, int id) {
-		mDatabase.updateTask(title,description,priority,date, id);
+
+    public void updateTask(Task task) {
+		mDatabase.updateTask(task);
     }
 }
