@@ -32,6 +32,8 @@ import butterknife.OnClick;
 public class NewTaskActivity extends AppCompatActivity {
 
 	public static String EXTRA_TASK_ID ="task id";
+	private String ACTION_EDIT_TASK= "edit task action";
+
 
 	@BindView(R.id.edittext_newtask_title)	EditText mTitleEntry;
 	@BindView(R.id.edittext_newtask_description) EditText mDescriptionEntry;
@@ -43,6 +45,7 @@ public class NewTaskActivity extends AppCompatActivity {
 	TaskRepository mRepository = TaskRepository.getInstance();
 	Intent intent;
 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,20 +54,11 @@ public class NewTaskActivity extends AppCompatActivity {
 		setUpSpinnerSource();
 
 		intent = getIntent();
-		if(checkIntent()){
-            setViews();
+		if(intent.getAction().equals(ACTION_EDIT_TASK)){
+            setViewsToTaskValues();
         }
 
 	}
-
-    private boolean checkIntent() {
-	    if (intent.hasExtra(EXTRA_TASK_ID)){
-	        return true;
-        }
-        else {
-	        return false;
-	    }
-    }
 
 
     private void setUpSpinnerSource() {
@@ -76,7 +70,7 @@ public class NewTaskActivity extends AppCompatActivity {
 		mPriorityEntry.setSelection(0);
 	}
 
-		public void setViews(){
+		public void setViewsToTaskValues(){
 
 	    int id= intent.getIntExtra(EXTRA_TASK_ID, 10);
 
@@ -90,13 +84,11 @@ public class NewTaskActivity extends AppCompatActivity {
 	}
 
 
-
 	@OnClick(R.id.imagebutton_newtask_savetask)
 	public void saveTask(){
 
 		try{
 		checkInput();
-
 
 		String title = mTitleEntry.getText().toString();
 		String description = mDescriptionEntry.getText().toString();
@@ -105,21 +97,25 @@ public class NewTaskActivity extends AppCompatActivity {
 
 		checkDateInput(date);
 
-		if(checkIntent()){
-		    Task task = mRepository.getTaskById(intent.getIntExtra(EXTRA_TASK_ID,10));
-		    task.setTitle(title);
-		    task.setDescription(description);
-		    task.setPriority(priority);
-		    task.setDueDate(date);
-            setResult(RESULT_OK);
+		if(intent.getAction().equals(ACTION_EDIT_TASK)){
+			int id = intent.getIntExtra(EXTRA_TASK_ID,10);
+			mRepository.getTaskById(id).setTitle(title);
+			mRepository.getTaskById(id).setDescription(description);
+			mRepository.getTaskById(id).setPriority(priority);
+			mRepository.getTaskById(id).setDueDate(date);
+			//mRepository.updateTask(title,description,priority,date,id);
+
 		    finish();
         }
 
-		Task newTask = new Task(title, description, priority, date);
-		Intent saveTaskIntent = new Intent(this, TasksActivity.class);
-		saveTaskIntent.putExtra(TasksActivity.EXTRA_TASK, newTask);
-		setResult(RESULT_OK, saveTaskIntent);
-		finish();
+			Task newTask = new Task(title, description, priority, date);
+			Intent saveTaskIntent = new Intent(this, TasksActivity.class);
+			saveTaskIntent.putExtra(TasksActivity.EXTRA_TASK, newTask);
+			setResult(RESULT_OK, saveTaskIntent);
+			finish();
+
+
+
 
 		}catch (EmptyFieldException e){
 

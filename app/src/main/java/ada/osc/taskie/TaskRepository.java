@@ -2,9 +2,11 @@ package ada.osc.taskie;
 
 import android.view.ViewGroup;
 
+import java.util.Date;
 import java.util.List;
 
 import ada.osc.taskie.model.Task;
+import ada.osc.taskie.model.TaskPriority;
 import ada.osc.taskie.persistance.FakeDatabase;
 import ada.osc.taskie.model.TaskGenerator;
 
@@ -61,4 +63,8 @@ public class TaskRepository {
 	public void changeTaskPriority(Task task) {
 		mDatabase.changeTaskPriority(task);
 	}
+
+    public void updateTask(String title, String description, TaskPriority priority, Date date, int id) {
+		mDatabase.updateTask(title,description,priority,date, id);
+    }
 }

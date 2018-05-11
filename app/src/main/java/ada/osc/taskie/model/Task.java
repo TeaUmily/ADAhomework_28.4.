@@ -88,4 +88,12 @@ public class Task implements Serializable{
 			this.setCompleted(true);
 		}
     }
+
+    public void updateTask(String title, String description, TaskPriority priority, Date date) {
+
+			this.mTitle = title;
+			this.mDescription = description;
+			this.mPriority = priority;
+			this.mDueDate = date;
+		}
 }

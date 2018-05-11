@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import ada.osc.taskie.model.Task;
@@ -83,4 +84,14 @@ public class FakeDatabase {
     public void changeTaskPriority(Task task) {
 		task.setNextPriority();
     }
+
+    public void updateTask(String title, String description, TaskPriority priority, Date date, int id) {
+		for (Task t:mTasks
+				) {if(t.getId() == id){
+			t.updateTask(title, description, priority, date);
+			}
+		}
+	}
+
+
 }

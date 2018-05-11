@@ -36,6 +36,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		mTasks.clear();
 		mTasks.addAll(tasks);
 		notifyDataSetChanged();
+
 	}
 
 	@NonNull
@@ -83,6 +84,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
 	public void removeTask(int position) {
 		mEventListener.onTaskSwipeRight(mTasks.get(position));
+		mTasks.remove(position);
+		notifyItemRemoved(position);
 	}
 
 
