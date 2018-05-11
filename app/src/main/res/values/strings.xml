@@ -15,5 +15,5 @@
     <string name="high_priority_first">High priority first</string>
     <string name="low_priority_first">Low priority first</string>
     <string name="uncompleted">uncompleted</string>
-    <string name="all">all</string>
+    <string name="all">no filter</string>
 </resources>
