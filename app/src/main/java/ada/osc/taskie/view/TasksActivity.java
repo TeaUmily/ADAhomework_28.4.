@@ -29,7 +29,9 @@ public class TasksActivity extends AppCompatActivity {
 	private static final String TAG = TasksActivity.class.getSimpleName();
 	private static final int REQUEST_NEW_TASK = 10;
 	public static final String EXTRA_TASK = "task";
-	private static final int REQUEST_EDIT_TASK =10 ;
+	private String ACTION_EDIT_TASK= "edit task action";
+	private String ACTION_NEW_TASK= "new task action";
+	private int REQUEST_EDIT_TASK = 10;
 
 
 	TaskRepository mRepository = TaskRepository.getInstance();
@@ -66,14 +68,17 @@ public class TasksActivity extends AppCompatActivity {
 		@Override
 		public void onTaskSwipeRight(Task task) {
 			mRepository.removeTask(task);
-			updateTasksDisplay();
+			//updateTasksDisplay();
 		}
 
 		@Override
 		public void onTaskSwipeLeft(Task task) {
 		    startNewTaskActivityForEdit(task);
+		    //updateTasksDisplay();
 		}
 	};
+
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -168,21 +173,20 @@ public class TasksActivity extends AppCompatActivity {
 
 	@OnClick(R.id.fab_tasks_addNew)
 	public void startNewTaskActivity(){
-		Intent newTask = new Intent();
+		Intent newTask = new Intent(ACTION_NEW_TASK);
 		newTask.setClass(this, NewTaskActivity.class);
+
+		//ako ne pozovem startActivityForResult nego samo startActivity, ne radi dobro, tj. updatea tek na idućem swipeu
 		startActivityForResult(newTask, REQUEST_NEW_TASK);
 	}
 
 
 	public void startNewTaskActivityForEdit(Task task){
-		Intent editTask = new Intent();
+		Intent editTask = new Intent(ACTION_EDIT_TASK);
 		editTask.setClass(this, NewTaskActivity.class);
 		editTask.putExtra(NewTaskActivity.EXTRA_TASK_ID, task.getId());
-		this.setResult(RESULT_OK, editTask);
 		startActivityForResult(editTask,REQUEST_EDIT_TASK);
 	}
-
-
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -193,11 +197,11 @@ public class TasksActivity extends AppCompatActivity {
 				mRepository.saveTask(task);
 				updateTasksDisplay();
 			}
+			// također i ako ovdje ne registriram intent i ne pozovem update neće raditi dobro
+			if(requestCode == REQUEST_EDIT_TASK && resultCode == RESULT_OK){
+				updateTasksDisplay();
+			}
 		}
-		if(requestCode == REQUEST_EDIT_TASK && resultCode == RESULT_OK){
-			updateTasksDisplay();
-		}
-
 	}
 
 }
