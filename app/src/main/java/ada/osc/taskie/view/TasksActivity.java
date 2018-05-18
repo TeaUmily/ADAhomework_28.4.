@@ -1,5 +1,8 @@
 package ada.osc.taskie.view;
 
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +16,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import java.util.List;
 
 import ada.osc.taskie.R;
@@ -24,14 +26,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+
 public class TasksActivity extends AppCompatActivity {
 
 	private static final String TAG = TasksActivity.class.getSimpleName();
-	private static final int REQUEST_NEW_TASK = 10;
-	public static final String EXTRA_TASK = "task";
-	private String ACTION_EDIT_TASK= "edit task action";
-	private String ACTION_NEW_TASK= "new task action";
-
+	private String ACTION_NEW_TASK = "new task action";
+	private String ACTION_EDIT_TASK = "edit task action";
 
 
 	TaskRepository mRepository = TaskRepository.getInstance();
@@ -47,7 +47,7 @@ public class TasksActivity extends AppCompatActivity {
 		public void onClick(Task task) {
 			toastTask(task);
 		}
-		
+
 		@Override
 		public void onToggleClick(Task task) {
 			if(!task.isCompleted()){
@@ -65,24 +65,25 @@ public class TasksActivity extends AppCompatActivity {
 			mRepository.changeTaskPriority(task);
 		}
 
+
 		@Override
 		public void onTaskSwipeRight(Task task) {
-			mRepository.removeTask(task);
+			displayAlertDialog(task);
 		}
 
 		@Override
 		public void onTaskSwipeLeft(Task task) {
-		    startNewTaskActivityForEdit(task);
+			startNewTaskActivityForEdit(task);
 		}
 	};
-
-
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tasks);
+
+		AlertDialog.Builder ad = new AlertDialog.Builder(this);
 
 		ButterKnife.bind(this);
 		setUpRecyclerView();
@@ -91,9 +92,43 @@ public class TasksActivity extends AppCompatActivity {
 		initSwipe();
 	}
 
-    @Override protected void onResume() {super.onResume(); updateTasksDisplay(); }
 
-    @Override
+	private void displayAlertDialog(final Task task) {
+
+
+		AlertDialog.Builder ad = new AlertDialog.Builder(this);
+		ad.setTitle("Confirm delete");
+		ad.setMessage("Are you sure you want to delete this task?");
+
+		ad.setPositiveButton(
+				R.string.delete,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int arg1) {
+						mRepository.removeTask(task.getId());
+						updateTasksDisplay();
+					}
+				}
+		);
+
+		ad.setNegativeButton(
+				R.string.cancel,
+				new DialogInterface.OnClickListener(){
+					public void onClick(DialogInterface dialog, int arg1) {
+						updateTasksDisplay();
+					}
+				}
+		);
+
+		ad.show();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		updateTasksDisplay();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
 		return true;
@@ -103,13 +138,11 @@ public class TasksActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.lowPriority_first_sort: {
-				mRepository.sortTasksHighFirst();
-				updateTasksDisplay();
+				mTaskAdapter.updateTasks(mRepository.getSortedTasksLowPriorityFirst());
 				return true;
 			}
 			case R.id.highPriority_first_sort: {
-				mRepository.sortTasksLowFirst();
-				updateTasksDisplay();
+				mTaskAdapter.updateTasks(mRepository.getSortedTasksHighPriorityFirst());
 				return true;
 			}
 			case R.id.uncompleted_filter: {
@@ -123,6 +156,7 @@ public class TasksActivity extends AppCompatActivity {
 			default:return super.onOptionsItemSelected(item);
 		}
 	}
+
 
 	private void setUpRecyclerView() {
 
@@ -174,29 +208,21 @@ public class TasksActivity extends AppCompatActivity {
 
 	@OnClick(R.id.fab_tasks_addNew)
 	public void startNewTaskActivity(){
-		Intent newTask = new Intent(ACTION_NEW_TASK);
+		Intent newTask = new Intent();
+		newTask.setAction(ACTION_NEW_TASK);
 		newTask.setClass(this, NewTaskActivity.class);
-		startActivityForResult(newTask, REQUEST_NEW_TASK);
+		startActivity(newTask);
 	}
 
 
 	public void startNewTaskActivityForEdit(Task task){
-		Intent editTask = new Intent(ACTION_EDIT_TASK);
+		Intent editTask = new Intent();
+		editTask.setAction(ACTION_EDIT_TASK);
 		editTask.setClass(this, NewTaskActivity.class);
 		editTask.putExtra(NewTaskActivity.EXTRA_TASK_ID, task.getId());
 		startActivity(editTask);
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if(requestCode == REQUEST_NEW_TASK && resultCode == RESULT_OK) {
-			if (data != null && data.hasExtra(EXTRA_TASK)) {
-				Task task = (Task) data.getSerializableExtra(EXTRA_TASK);
-				mRepository.saveTask(task);
-				updateTasksDisplay();
-			}
-		}
-	}
 
 }
