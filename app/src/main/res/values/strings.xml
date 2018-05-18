@@ -16,4 +16,7 @@
     <string name="low_priority_first">Low priority first</string>
     <string name="uncompleted">uncompleted</string>
     <string name="all">all</string>
+    <string name="newtask_category_hint">Enter or choose a category</string>
+    <string name="delete">OK</string>
+    <string name="cancel">CANCEL</string>
 </resources>
