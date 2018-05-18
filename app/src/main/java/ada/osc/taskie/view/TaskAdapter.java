@@ -3,6 +3,7 @@ package ada.osc.taskie.view;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.text.DateFormat;
 import java.text.Format;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ada.osc.taskie.R;
@@ -20,7 +24,6 @@ import ada.osc.taskie.model.Task;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnLongClick;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
@@ -57,8 +60,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		holder.mDescription.setText(current.getDescription());
 
 		Format formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String s= formatter.format(current.getDueDate());
-		holder.mDueDate.setText("Due date: "+s);
+
+		holder.mDueDate.setText("Due date: "+formatter.format(current.getDueDate()));
 
 		holder.mCompleted.setChecked(current.isCompleted());
 
@@ -67,7 +70,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
 	private int getPriorityColor(Task task) {
 		int color = R.color.taskPriority_Unknown;
-		switch (task.getPriority()){
+		switch (task.getTaskPriorityEnum()){
 			case LOW: color = R.color.taskpriority_low; break;
 			case MEDIUM: color = R.color.taskpriority_medium; break;
 			case HIGH: color = R.color.taskpriority_high; break;
@@ -83,6 +86,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
 	public void removeTask(int position) {
 		mEventListener.onTaskSwipeRight(mTasks.get(position));
+		//mTasks.remove(position);
+		//notifyItemRemoved(position);
 	}
 
 
@@ -118,12 +123,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		@OnClick(R.id.imageview_task_priority)
         public void onPriorityColorClick(){
 		    mEventListener.onPriorityColorClick(mTasks.get(getAdapterPosition()));
-            mPriority.setImageResource(getPriorityColor(mTasks.get(getAdapterPosition())));
+		    mPriority.setImageResource(getPriorityColor(mTasks.get(getAdapterPosition())));
+
         }
 
         @OnClick (R.id.toggleButton)
 		    public void onToggleClick(){
 		        mEventListener.onToggleClick(mTasks.get(getAdapterPosition()));
+		        
 		    }
         }
     }

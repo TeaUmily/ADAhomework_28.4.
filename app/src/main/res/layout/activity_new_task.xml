@@ -42,12 +42,30 @@
         android:background="@drawable/calendar_icon"/>
 </LinearLayout>
 
+
+    <AutoCompleteTextView
+        android:id="@+id/category_autoCompletedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/newTask_category_hint"
+        android:layout_below="@+id/linearlayout_date"
+        />
+    <ImageView
+        android:id="@+id/category_dropdown_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/category_autoCompletedTextView"
+        android:layout_alignTop="@+id/category_autoCompletedTextView"
+        android:src="@drawable/drop_down_icon"
+        />
+
     <Spinner
         android:id="@+id/spinner_newtask_priority"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/linearlayout_date"
+        android:layout_below="@id/category_autoCompletedTextView"
         android:layout_centerHorizontal="true"/>
+
     <ImageButton
         android:id="@+id/imagebutton_newtask_savetask"
         android:layout_width="wrap_content"

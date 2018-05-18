@@ -1,23 +1,27 @@
 package ada.osc.taskie;
 
-import android.view.ViewGroup;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ada.osc.taskie.model.Task;
-import ada.osc.taskie.persistance.FakeDatabase;
-import ada.osc.taskie.model.TaskGenerator;
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
+
 
 public class TaskRepository {
 
 	private static TaskRepository sRepository = null;
-	private static final int INITIAL_TASK_COUNT = 10;
 
-	private FakeDatabase mDatabase;
+	private Realm mRealm;
 
 	private TaskRepository(){
-		mDatabase = new FakeDatabase();
-		mDatabase.save(TaskGenerator.generate(INITIAL_TASK_COUNT));
+		mRealm = Realm.getDefaultInstance();
 	}
 
 	public static synchronized TaskRepository getInstance(){
@@ -27,38 +31,86 @@ public class TaskRepository {
 		return sRepository;
 	}
 
-	public Task getTaskById(int id){
-		return mDatabase.getTaskById(id);
-	}
+	public Task getTaskById(String id){
+            Task task= mRealm
+					.where(Task.class)
+					.equalTo("mId",id)
+					.findFirst();
+		return task;
+    }
+
 	public List<Task> getTasks() {
-		return mDatabase.getTasks();
+		RealmResults<Task> tasks = mRealm.where(Task.class).findAll();
+		return tasks;
 	}
 
 	public void saveTask(Task task) {
-		mDatabase.save(task);
+		mRealm.beginTransaction();
+		mRealm.copyToRealm(task);
+		mRealm.commitTransaction();
 	}
 
-	public void removeTask(Task task) {
-		mDatabase.delete(task);
+	public void removeTask(String id) {
+		mRealm.beginTransaction();
+		Task task = mRealm.where(Task.class).equalTo("mId", id).findFirst();
+		task.deleteFromRealm();
+		mRealm.commitTransaction();
 	}
 
-	public void sortTasksHighFirst(){
-		mDatabase.sortHighPriortiyFirst();
+	public List<Task> getSortedTasksHighPriorityFirst(){
+
+		RealmResults<Task> realmResults = mRealm.where(Task.class).findAll();
+		List<Task> sortedTasks = new ArrayList<>();
+
+		for(Task results : realmResults) {
+			sortedTasks.add(results);
+		}
+
+		Collections.sort(sortedTasks, new Comparator<Task>() {
+			@Override
+			public int compare(Task o1, Task o2) {
+				return o1.getTaskPriorityEnum().compareTo(o2.getTaskPriorityEnum());
+			}
+		});
+
+		return sortedTasks;
 	}
 
-	public void sortTasksLowFirst(){
-		mDatabase.sortLowPriorityFirst();
+	public List<Task> getSortedTasksLowPriorityFirst(){
+		List<Task> tasks = getSortedTasksHighPriorityFirst();
+		Collections.reverse(tasks);
+		return tasks;
 	}
 
 	public List<Task> filterUncompletedTasks(){
-		return mDatabase.filterUncompletedTasks();
+		RealmQuery<Task> query = mRealm.where(Task.class);
+		query.equalTo("mCompleted", false);
+		List<Task> tasks = query.findAll();
+		return tasks;
 	}
 
     public void updateTaskState(Task task) {
-		mDatabase.updateTaskState(task);
+		mRealm.beginTransaction();
+		Task taskToUpdate = mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
+		taskToUpdate.changeState();
+		mRealm.commitTransaction();
     }
 
 	public void changeTaskPriority(Task task) {
-		mDatabase.changeTaskPriority(task);
+		mRealm.beginTransaction();
+		Task taskToChangePriority= mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
+		taskToChangePriority.setNextPriority();
+		mRealm.commitTransaction();
 	}
+
+    public void updateTask(Task task) {
+		mRealm.beginTransaction();
+		Task taskToUpdate = mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
+		taskToUpdate.setTitle(task.getTitle());
+		taskToUpdate.setTaskPriorityEnum(task.getTaskPriorityEnum());
+		taskToUpdate.setDescription(task.getDescription());
+		taskToUpdate.setDueDate(task.getDueDate());
+		mRealm.commitTransaction();
+    }
+
 }
