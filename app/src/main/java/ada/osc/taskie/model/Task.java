@@ -1,35 +1,50 @@
 package ada.osc.taskie.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
-import java.util.Date;
 import java.util.UUID;
 
 import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
-import io.realm.annotations.Required;
 
 @RealmClass
 public class Task extends RealmObject  implements Serializable{
 
-	@Required
-	@PrimaryKey
+	private static int sID = 0;
+
+	@Expose
+	@SerializedName("id")
 	private String mId;
+	@Expose
+	@SerializedName("title")
 	private String mTitle;
+	@Expose
+	@SerializedName("content")
 	private String mDescription;
+	@Expose
+	@SerializedName("isCompleted")
 	private boolean mCompleted;
-	private String mPriority;
-	private Date mDueDate;
+	@Expose
+	@SerializedName("dueDate")
+	private String mDueDate;
+	@Expose
+	@SerializedName("taskPriority")
+	private int mPriority;
+	@Expose
+	@SerializedName("isFavorite")
+	private boolean mFavorite;
 	private String mCategory;
 
-	public Task(String title, String description, TaskPriority priority, Date dueDate, String mCategory) {
-		this.mCategory = mCategory;
+	public Task(String title, String description, TaskPriority priority, String dueDate) {
 		mId = UUID.randomUUID().toString();
 		mTitle = title;
+		mFavorite= false;
 		mDescription = description;
 		mCompleted = false;
-		mPriority = convertTaskPriorityEnumToString(priority);
-		mDueDate = dueDate;
+		mPriority = priority.getValue();
+	    mDueDate = dueDate;
 
 	}
 
@@ -65,27 +80,20 @@ public class Task extends RealmObject  implements Serializable{
 	}
 
 
-	public Date getDueDate(){
+	public String getDueDate(){
 		return mDueDate;
 	}
 
-	public void setDueDate(Date dueDate) {
+	public void setDueDate(String dueDate) {
 		this.mDueDate = dueDate;
 	}
 
-	public TaskPriority getTaskPriorityEnum() {
-		return TaskPriority.valueOf(mPriority);
-	}
-
-	public void setTaskPriorityEnum(TaskPriority taskPriority) {
-		this.mPriority = taskPriority.toString();
-	}
 
 	public void setNextPriority(){
-		switch(getTaskPriorityEnum()){
-			case LOW: mPriority = TaskPriority.MEDIUM.toString(); break;
-			case MEDIUM: mPriority = TaskPriority.HIGH.toString(); break;
-			case HIGH: mPriority = TaskPriority.LOW.toString(); break;
+		switch(getPriority()){
+			case 1: mPriority = TaskPriority.MEDIUM.getValue(); break;
+			case 2: mPriority = TaskPriority.HIGH.getValue(); break;
+			case 3: mPriority = TaskPriority.LOW.getValue(); break;
 		}
 	}
 
@@ -98,16 +106,28 @@ public class Task extends RealmObject  implements Serializable{
 		}
 	}
 
-	public String convertTaskPriorityEnumToString(TaskPriority taskPriority) {
-		return String.valueOf(taskPriority.toString());
-	}
-
-
 	public String getCategory() {
 		return mCategory;
 	}
 
 	public void setCategory(String mCategory) {
 		this.mCategory = mCategory;
+	}
+
+	public int getPriority() {
+		return mPriority;
+	}
+
+	public void setPriority(int mPriority) {
+		this.mPriority = mPriority;
+	}
+
+	public boolean isFavorite() {
+		return mFavorite;
+	}
+
+	public void setFavorite(boolean mFavorite) {
+		this.mFavorite = mFavorite;
+
 	}
 }

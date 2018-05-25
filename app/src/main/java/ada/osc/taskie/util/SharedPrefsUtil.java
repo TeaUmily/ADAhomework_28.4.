@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 public class SharedPrefsUtil {
 
+    public static final String TOKEN = "token";
     public static final String TASK_PRIORITY_KEY ="task prioity";
 
     public static void storePreferencesField(Context context, String key,

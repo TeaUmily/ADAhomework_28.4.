@@ -1,4 +1,4 @@
-package ada.osc.taskie.view;
+package ada.osc.taskie.ui.addTask;
 
 public class InvalidInputException extends Exception {
 

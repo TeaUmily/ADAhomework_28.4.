@@ -1,7 +1,111 @@
-package ada.osc.taskie.view;
+package ada.osc.taskie.ui.tasks.mainActivity;
 
 
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+
+import ada.osc.taskie.R;
+import ada.osc.taskie.ui.addTask.NewTaskActivity;
+import ada.osc.taskie.ui.tasks.all.AllTasksFragment;
+import ada.osc.taskie.ui.tasks.completed.CompletedTasksFragment;
+import ada.osc.taskie.ui.tasks.favorite.FavoriteTasksFragment;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class TasksActivity extends AppCompatActivity {
+
+	private String ACTION_NEW_TASK= "new task action";
+
+	@BindView(R.id.fab_tasks_addNew)
+	FloatingActionButton mNewTask;
+
+	@BindView(R.id.tabLayout)TabLayout mTabLayout;
+
+	private AllTasksFragment allTasksFragment;
+	private FavoriteTasksFragment favoriteTasksFragment;
+	private CompletedTasksFragment completedTasksFragment;
+
+
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_tasks);
+		ButterKnife.bind(this);
+
+		allTasksFragment = new AllTasksFragment();
+		favoriteTasksFragment = new FavoriteTasksFragment();
+		completedTasksFragment = new CompletedTasksFragment();
+
+
+		bindWidgetsWithAnEvent();
+		setupTabLayout();
+	}
+
+
+	@OnClick(R.id.fab_tasks_addNew)
+	public void startNewTaskActivity() {
+		Intent newTask = new Intent();
+		newTask.setAction(ACTION_NEW_TASK);
+		newTask.setClass(this, NewTaskActivity.class);
+		startActivity(newTask);
+	}
+
+	private void setupTabLayout() {
+		mTabLayout.addTab(mTabLayout.newTab().setText("ALL"),true);
+		mTabLayout.addTab(mTabLayout.newTab().setText("COMPLETED"));
+		mTabLayout.addTab(mTabLayout.newTab().setText("FAVORITE"));
+	}
+
+	private void bindWidgetsWithAnEvent()
+	{
+		mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+			@Override
+			public void onTabSelected(TabLayout.Tab tab) {
+				setCurrentTabFragment(tab.getPosition());
+			}
+			@Override
+			public void onTabUnselected(TabLayout.Tab tab) {
+			}
+			@Override
+			public void onTabReselected(TabLayout.Tab tab) {
+			}
+		});
+	}
+
+	private void setCurrentTabFragment(int tabPosition)
+	{
+		switch (tabPosition)
+		{
+			case 0 :
+				replaceFragment(allTasksFragment);
+				break;
+			case 1 :
+				replaceFragment(completedTasksFragment);
+				break;
+			case 2:
+				replaceFragment(favoriteTasksFragment);
+				break;
+		}
+	}
+	public void replaceFragment(Fragment fragment) {
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.replace(R.id.frame_container, fragment);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.commit();
+	}
+}
+
+
+/*import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
@@ -18,16 +122,23 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import java.util.List;
 
+import ada.osc.taskie.App;
 import ada.osc.taskie.R;
 import ada.osc.taskie.SimpleItemTouchCallback;
-import ada.osc.taskie.TaskRepository;
+import ada.osc.taskie.persistance.TaskRepository;
+import ada.osc.taskie.listener.ItemEventListener;
 import ada.osc.taskie.model.Task;
+import ada.osc.taskie.presentation.AllTasksPresenter;
+import ada.osc.taskie.ui.addTask.NewTaskActivity;
+import ada.osc.taskie.ui.tasks.AllTasksContract;
+import ada.osc.taskie.ui.tasks.TaskAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import butterknife.OnClick;*/
 
 
-public class TasksActivity extends AppCompatActivity {
+/*
+public class TasksActivity extends AppCompatActivity implements AllTasksContract.View {
 
 	private static final String TAG = TasksActivity.class.getSimpleName();
 	private String ACTION_NEW_TASK = "new task action";
@@ -36,6 +147,8 @@ public class TasksActivity extends AppCompatActivity {
 
 	TaskRepository mRepository = TaskRepository.getInstance();
 	TaskAdapter mTaskAdapter;
+
+	private AllTasksContract.Presenter mPresenter;
 
 
 	@BindView(R.id.fab_tasks_addNew) FloatingActionButton mNewTask;
@@ -83,6 +196,10 @@ public class TasksActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tasks);
 
+
+		mPresenter = new AllTasksPresenter(App.getApiInteractor(), App.getPreferences());
+		mPresenter.setView(this);
+
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
 
 		ButterKnife.bind(this);
@@ -93,34 +210,7 @@ public class TasksActivity extends AppCompatActivity {
 	}
 
 
-	private void displayAlertDialog(final Task task) {
 
-
-		AlertDialog.Builder ad = new AlertDialog.Builder(this);
-		ad.setTitle("Confirm delete");
-		ad.setMessage("Are you sure you want to delete this task?");
-
-		ad.setPositiveButton(
-				R.string.delete,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int arg1) {
-						mRepository.removeTask(task.getId());
-						updateTasksDisplay();
-					}
-				}
-		);
-
-		ad.setNegativeButton(
-				R.string.cancel,
-				new DialogInterface.OnClickListener(){
-					public void onClick(DialogInterface dialog, int arg1) {
-						updateTasksDisplay();
-					}
-				}
-		);
-
-		ad.show();
-	}
 
 	@Override
 	protected void onResume() {
@@ -223,6 +313,31 @@ public class TasksActivity extends AppCompatActivity {
 		startActivity(editTask);
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		mPresenter.getTasks();
+	}
 
 
+	@Override
+	public void showTasks(List<Task> tasks) {
+		mTaskAdapter.updateTasks(tasks);
+	}
+
+	@Override
+	public void showMoreTasks(List<Task> tasks) {
+
+	}
+
+	@Override
+	public void onTaskRemoved(String taskId) {
+		mTaskAdapter.removeTask(taskId);
+	}
+
+	@Override
+	public void onTaskFavoriteStateChanged(String taskId) {
+
+	}
 }
+*/

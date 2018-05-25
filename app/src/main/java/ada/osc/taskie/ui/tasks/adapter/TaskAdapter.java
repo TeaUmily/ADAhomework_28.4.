@@ -1,6 +1,7 @@
-package ada.osc.taskie.view;
+package ada.osc.taskie.ui.tasks.adapter;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.Icon;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,27 +12,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ada.osc.taskie.R;
+import ada.osc.taskie.listener.ItemEventListener;
+import ada.osc.taskie.listener.TaskClickListener;
 import ada.osc.taskie.model.Task;
+import ada.osc.taskie.ui.tasks.all.AllTasksContract;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
+import retrofit2.http.Body;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
 	private List<Task> mTasks;
-	private ItemEventListener mEventListener;
+	private TaskClickListener mTaskClickListener;
+	private ItemEventListener mItemEventListener;
 
-	public TaskAdapter(ItemEventListener eventListener) {
-		mEventListener = eventListener;
+
+	public TaskAdapter(TaskClickListener taskClickListener, ItemEventListener itemEventListener) {
+		this.mItemEventListener = itemEventListener;
+		this.mTaskClickListener = taskClickListener;
 		mTasks = new ArrayList<>();
 	}
 
@@ -59,35 +63,46 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		holder.mTitle.setText(current.getTitle());
 		holder.mDescription.setText(current.getDescription());
 
-		Format formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-		holder.mDueDate.setText("Due date: "+formatter.format(current.getDueDate()));
-
+		holder.mDueDate.setText("Due date: "+ current.getDueDate());
 		holder.mCompleted.setChecked(current.isCompleted());
+
+		setFavoriteStarState(holder, current);
 
 		holder.mPriority.setImageResource(getPriorityColor(current));
 	}
 
+
+
+
 	private int getPriorityColor(Task task) {
 		int color = R.color.taskPriority_Unknown;
-		switch (task.getTaskPriorityEnum()){
-			case LOW: color = R.color.taskpriority_low; break;
-			case MEDIUM: color = R.color.taskpriority_medium; break;
-			case HIGH: color = R.color.taskpriority_high; break;
+		switch (task.getPriority()){
+			case 1: color = R.color.taskpriority_low; break;
+			case 2: color = R.color.taskpriority_medium; break;
+			case 3: color = R.color.taskpriority_high; break;
 		}
 		return color;
 	}
-
 	@Override
 	public int getItemCount() {
 		return mTasks.size();
 	}
 
 
-	public void removeTask(int position) {
-		mEventListener.onTaskSwipeRight(mTasks.get(position));
-		//mTasks.remove(position);
-		//notifyItemRemoved(position);
+	public void removeTask(String taskId) {
+		int index = -1;
+
+		for (Task task : mTasks) {
+			if (task.getId().equals(taskId)) {
+				index = mTasks.indexOf(task);
+			}
+		}
+
+		if (index != -1) {
+
+			mTasks.remove(index);
+			notifyItemRemoved(index);
+		}
 	}
 
 
@@ -97,10 +112,27 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		holder.mCompleted.setOnCheckedChangeListener(null);
 	}
 
-
-	public void editTask(int position) {
-		mEventListener.onTaskSwipeLeft(mTasks.get(position));
+	public void onTaskSwipeLeft(int position) {
+		mItemEventListener.onTaskSwipeLeft(mTasks.get(position));
 	}
+
+	public void onTaskSwipeRight(int position){
+		mItemEventListener.onTaskSwipeRight(mTasks.get(position));
+	}
+
+	public void onFavouriteTaskStarClick() {
+
+	}
+
+	public void setFavoriteStarState(TaskViewHolder holder, Task current) {
+		if(current.isFavorite()){
+			holder.mFavouriteTaskStar.setImageResource(R.drawable.fav_yellow_star_icon);
+		}
+		else{
+			holder.mFavouriteTaskStar.setImageResource(R.drawable.fav_star_icon);
+		}
+	}
+
 
 	class TaskViewHolder extends RecyclerView.ViewHolder {
 
@@ -109,28 +141,37 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 		@BindView(R.id.imageview_task_priority) ImageView mPriority;
 		@BindView(R.id.textview_task_dueDate) TextView mDueDate;
 		@BindView(R.id.toggleButton) ToggleButton mCompleted;
+		@BindView(R.id.fav_star_imageview) ImageView mFavouriteTaskStar;
 
 		public TaskViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		@OnClick
-		public void onTaskClick(){
-			mEventListener.onClick(mTasks.get(getAdapterPosition()));
-		}
-
-		@OnClick(R.id.imageview_task_priority)
+		/*@OnClick(R.id.imageview_task_priority)
 		public void onPriorityColorClick(){
 			mEventListener.onPriorityColorClick(mTasks.get(getAdapterPosition()));
 			mPriority.setImageResource(getPriorityColor(mTasks.get(getAdapterPosition())));
+		}
 
+		}*/
+
+		@OnClick (R.id.fav_star_imageview)
+
+		public void onFavTaskClick() {
+			mItemEventListener.onFavouriteTaskStarClick(mTasks.get(getAdapterPosition()));
+			mFavouriteTaskStar.setImageResource(R.drawable.fav_yellow_star_icon);
+		}
+
+		@OnLongClick
+		public boolean onTaskLongClick() {
+			mTaskClickListener.onLongClick(mTasks.get(getAdapterPosition()));
+			return true;
 		}
 
 		@OnClick (R.id.toggleButton)
 		public void onToggleClick(){
-			mEventListener.onToggleClick(mTasks.get(getAdapterPosition()));
-
+			mItemEventListener.onToggleClick(mTasks.get(getAdapterPosition()));
 		}
 	}
 }

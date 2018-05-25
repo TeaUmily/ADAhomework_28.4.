@@ -1,7 +1,6 @@
-package ada.osc.taskie;
+package ada.osc.taskie.persistance;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +13,6 @@ import io.realm.RealmResults;
 public class TaskRepository {
 
 	private static TaskRepository sRepository = null;
-
 	private Realm mRealm;
 
 	private TaskRepository(){
@@ -54,7 +52,7 @@ public class TaskRepository {
 		mRealm.commitTransaction();
 	}
 
-	public List<Task> getSortedTasksHighPriorityFirst(){
+/*	public List<Task> getSortedTasksHighPriorityFirst(){
 
 		RealmResults<Task> realmResults = mRealm.where(Task.class).findAll();
 		List<Task> sortedTasks = new ArrayList<>();
@@ -66,18 +64,18 @@ public class TaskRepository {
 		Collections.sort(sortedTasks, new Comparator<Task>() {
 			@Override
 			public int compare(Task o1, Task o2) {
-				return o1.getTaskPriorityEnum().compareTo(o2.getTaskPriorityEnum());
+				return o1.getPriority() > o2.getPriority();
 			}
 		});
 
 		return sortedTasks;
-	}
+	}*/
 
-	public List<Task> getSortedTasksLowPriorityFirst(){
+	/*public List<Task> getSortedTasksLowPriorityFirst(){
 		List<Task> tasks = getSortedTasksHighPriorityFirst();
 		Collections.reverse(tasks);
 		return tasks;
-	}
+	}*/
 
 	public List<Task> filterUncompletedTasks(){
 		RealmQuery<Task> query = mRealm.where(Task.class);
@@ -104,7 +102,7 @@ public class TaskRepository {
 		mRealm.beginTransaction();
 		Task taskToUpdate = mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
 		taskToUpdate.setTitle(task.getTitle());
-		taskToUpdate.setTaskPriorityEnum(task.getTaskPriorityEnum());
+		taskToUpdate.setPriority(task.getPriority());
 		taskToUpdate.setDescription(task.getDescription());
 		taskToUpdate.setDueDate(task.getDueDate());
 		mRealm.commitTransaction();

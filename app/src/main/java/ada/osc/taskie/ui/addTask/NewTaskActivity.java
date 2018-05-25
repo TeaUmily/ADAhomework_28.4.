@@ -1,4 +1,4 @@
-package ada.osc.taskie.view;
+package ada.osc.taskie.ui.addTask;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -6,10 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -20,37 +18,34 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import ada.osc.taskie.App;
 import ada.osc.taskie.R;
-import ada.osc.taskie.TaskRepository;
 import ada.osc.taskie.CategoryRepository;
 import ada.osc.taskie.model.Task;
 import ada.osc.taskie.model.TaskPriority;
+import ada.osc.taskie.presentation.NewTaskPresenter;
 import ada.osc.taskie.util.SharedPrefsUtil;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
 
 
-public class NewTaskActivity extends AppCompatActivity {
+public class NewTaskActivity extends AppCompatActivity implements NewTaskContract.View {
 
-	public static String EXTRA_TASK_ID ="task id";
+	public static String EXTRA_TASK ="task";
 	private String ACTION_EDIT_TASK= "edit task action";
-	private String ACTION_NEW_TASK = "new task action";
 
 	@BindView(R.id.edittext_newtask_title)	EditText mTitleEntry;
 	@BindView(R.id.edittext_newtask_description) EditText mDescriptionEntry;
 	@BindView(R.id.spinner_newtask_priority) Spinner mPriorityEntry;
 	@BindView(R.id.edittext_newtask_dueDate) EditText mDueDate;
-	@BindView(R.id.calendar_button) Button mCalendarBtn;
 	@BindView(R.id.category_autoCompletedTextView) AutoCompleteTextView mCategory;
-	@BindView(R.id.category_dropdown_icon)
-	ImageView mDropDownImage;
 
+	 private NewTaskContract.Presenter mPresenter;
 
 
 	DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-	TaskRepository mTaskRepository = TaskRepository.getInstance();
+	//TaskRepository mTaskRepository = TaskRepository.getInstance();
 	CategoryRepository mCategoryRepository = CategoryRepository.getInstance();
 	Intent intent;
 
@@ -61,8 +56,12 @@ public class NewTaskActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_task);
 		ButterKnife.bind(this);
+
 		setUpSpinnerSource();
 		setUpCategoryAutoCompletedTV();
+
+		mPresenter = new NewTaskPresenter(App.getPreferences(), App.getApiInteractor());
+		mPresenter.setView(this);
 
 		intent = getIntent();
 		if(intent.getAction().equals(ACTION_EDIT_TASK)){
@@ -103,14 +102,15 @@ public class NewTaskActivity extends AppCompatActivity {
 
 	public void setViewsToTaskValues(){
 
-		String id = intent.getStringExtra(EXTRA_TASK_ID);
+		Task task =(Task) intent.getSerializableExtra(EXTRA_TASK);
+		//String id = intent.getStringExtra(EXTRA_TASK_ID);
 
-		Task task = mTaskRepository.getTaskById(id);
+		//Task task = mTaskRepository.getTaskById(id);
 
 		mTitleEntry.setText(task.getTitle());
 		mDescriptionEntry.setText(task.getDescription());
-		mPriorityEntry.setSelection(task.getTaskPriorityEnum().ordinal());
-		mDueDate.setText(formatter.format(task.getDueDate()));
+		mPriorityEntry.setSelection(task.getPriority());
+		mDueDate.setText(task.getDueDate());
 		mCategory.setText(task.getCategory());
 
 	}
@@ -127,6 +127,8 @@ public class NewTaskActivity extends AppCompatActivity {
 			String description = mDescriptionEntry.getText().toString();
 			TaskPriority priority = (TaskPriority) mPriorityEntry.getSelectedItem();
 			Date date = formatter.parse(mDueDate.getText().toString());
+
+			String date_str = formatter.format(date);
 			String category = mCategory.getText().toString();
 
 			mCategoryRepository.addNewCategory(category);
@@ -137,26 +139,34 @@ public class NewTaskActivity extends AppCompatActivity {
 
 			if(intent.getAction().equals(ACTION_EDIT_TASK)){
 
-				String id = intent.getStringExtra(EXTRA_TASK_ID);
-				Realm realm = Realm.getDefaultInstance();
+				Task task =(Task) intent.getSerializableExtra(EXTRA_TASK);
+				//Realm realm = Realm.getDefaultInstance();
 
-				realm.beginTransaction();
+                task.setTitle(title);
+                task.setDescription(description);
+                task.setPriority(priority.getValue());
+                task.setDueDate(date.toString());
+                task.setCategory(category);
+
+				/*realm.beginTransaction();
 				mTaskRepository.getTaskById(id).setTitle(title);
 				mTaskRepository.getTaskById(id).setDescription(description);
 				mTaskRepository.getTaskById(id).setTaskPriorityEnum(priority);
 				mTaskRepository.getTaskById(id).setDueDate(date);
 				mTaskRepository.getTaskById(id).setCategory(mCategory.getText().toString());
-				realm.commitTransaction();
+				realm.commitTransaction();*/
 
-				mTaskRepository.updateTask(mTaskRepository.getTaskById(id));
+				//mTaskRepository.updateTask(mTaskRepository.getTaskById(id));
+                mPresenter.editTask(task);
 				finish();
 			}
 
-			if(intent.getAction().equals(ACTION_NEW_TASK)){
-				Task newTask = new Task(title, description, priority, date, category);
-				mTaskRepository.saveTask(newTask);
+			//if(intent.getAction().equals(ACTION_NEW_TASK)){
+				Task newTask = new Task(title, description, priority, date_str);
+				//mTaskRepository.saveTask(newTask);
+				mPresenter.createTask(newTask);
 				finish();
-			}
+			//}
 
 		}catch (EmptyFieldException e){
 
@@ -218,5 +228,18 @@ public class NewTaskActivity extends AppCompatActivity {
 	}
 
 
+	@Override
+	public void onTaskCreated() {
+		finish();
+	}
 
+	@Override
+	public void showNetworkError() {
+		Toast.makeText(this, "Network error, please try again", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void showTaskError() {
+		Toast.makeText(this, "Task is invalid", Toast.LENGTH_SHORT).show();
+	}
 }

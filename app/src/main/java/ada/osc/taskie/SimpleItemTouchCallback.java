@@ -9,9 +9,10 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.View;
 
-import ada.osc.taskie.view.TaskAdapter;
+import ada.osc.taskie.ui.tasks.adapter.TaskAdapter;
 
 public class SimpleItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
@@ -22,6 +23,7 @@ public class SimpleItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
     public SimpleItemTouchCallback(int dragDirs, int swipeDirs) {
         super(dragDirs, swipeDirs);
+
     }
 
     @Override
@@ -33,19 +35,14 @@ public class SimpleItemTouchCallback extends ItemTouchHelper.SimpleCallback {
         this.mAdapter=adapter;
     }
 
-
-    public void setRes(Resources res){
-        this.mRes = res;
-    }
-
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
 
         if (direction == ItemTouchHelper.LEFT){
-            mAdapter.removeTask(position);
+            mAdapter.onTaskSwipeLeft(position);
         } else {
-         mAdapter.editTask(position);
+         mAdapter.onTaskSwipeRight(position);
         }
     }
 
@@ -78,4 +75,7 @@ public class SimpleItemTouchCallback extends ItemTouchHelper.SimpleCallback {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
+    public void setRes(Resources mRes) {
+        this.mRes = mRes;
+    }
 }

@@ -28,6 +28,15 @@
         android:layout_toStartOf="@id/imageview_task_priority"
         android:layout_below="@id/textview_task_title"
         android:textSize="@dimen/textSize_normal"/>
+
+    <ImageView
+        android:id="@+id/fav_star_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageview_task_priority"
+        android:layout_toLeftOf="@+id/imageview_task_priority"
+        android:src="@drawable/fav_star_icon" />
+
     <TextView
         android:id="@+id/textview_task_dueDate"
         android:layout_width="match_parent"
