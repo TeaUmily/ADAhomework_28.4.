@@ -22,10 +22,9 @@ public class InvalidInputException extends Exception {
     public EmptyFieldException(String msg) {
         super(msg);
     }
-}
+    }
 
-
-class InvalidDateException extends InvalidInputException{
+    class InvalidDateException extends InvalidInputException{
 
     public InvalidDateException() {
     }
