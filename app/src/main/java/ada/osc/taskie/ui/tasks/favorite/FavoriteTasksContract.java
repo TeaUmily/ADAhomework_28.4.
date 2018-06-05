@@ -13,9 +13,13 @@ public interface FavoriteTasksContract {
 
         void showMoreTasks(List<Task> tasks);
 
-        void onTaskRemoved(String taskId);
+        void onFavouriteTaskStarClick(Task task);
+
+        void onTaskRemoved();
 
         void onTaskFavoriteStateChanged(String taskId);
+
+        void showTaskStateChangedToast();
     }
 
     interface Presenter {
@@ -26,6 +30,10 @@ public interface FavoriteTasksContract {
 
         void deleteTask(Task task);
 
-        void setTaskFavorite(Task task);
+        void setTaskToNotFavorite(Task task);
+
+        void changeTaskCompleted(Task task);
+
+        void editTask(Task task);
     }
 }

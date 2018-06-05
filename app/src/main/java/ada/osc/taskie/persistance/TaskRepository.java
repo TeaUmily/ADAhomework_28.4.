@@ -1,5 +1,7 @@
 package ada.osc.taskie.persistance;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,14 +47,14 @@ public class TaskRepository {
 		mRealm.commitTransaction();
 	}
 
-	public void removeTask(String id) {
+	public void removeTaskById(String id) {
 		mRealm.beginTransaction();
 		Task task = mRealm.where(Task.class).equalTo("mId", id).findFirst();
 		task.deleteFromRealm();
 		mRealm.commitTransaction();
 	}
 
-/*	public List<Task> getSortedTasksHighPriorityFirst(){
+	public List<Task> getSortedTasksHighPriorityFirst(){
 
 		RealmResults<Task> realmResults = mRealm.where(Task.class).findAll();
 		List<Task> sortedTasks = new ArrayList<>();
@@ -60,34 +62,41 @@ public class TaskRepository {
 		for(Task results : realmResults) {
 			sortedTasks.add(results);
 		}
-
 		Collections.sort(sortedTasks, new Comparator<Task>() {
 			@Override
 			public int compare(Task o1, Task o2) {
-				return o1.getPriority() > o2.getPriority();
+				Integer o1Priority = o1.getPriority();
+				Integer o2Priority = o2.getPriority();
+				return o1Priority.compareTo(o2Priority);
 			}
 		});
 
 		return sortedTasks;
-	}*/
-
-	/*public List<Task> getSortedTasksLowPriorityFirst(){
+	}
+	public List<Task> getSortedTasksLowPriorityFirst(){
 		List<Task> tasks = getSortedTasksHighPriorityFirst();
 		Collections.reverse(tasks);
 		return tasks;
-	}*/
+	}
 
-	public List<Task> filterUncompletedTasks(){
+	public List<Task> filterCompletedTasks(){
 		RealmQuery<Task> query = mRealm.where(Task.class);
-		query.equalTo("mCompleted", false);
+		query.equalTo("mCompleted", true);
 		List<Task> tasks = query.findAll();
 		return tasks;
 	}
 
-	public void updateTaskState(Task task) {
+	public List<Task> filterFavoriteTasks(){
+		RealmQuery<Task> query = mRealm.where(Task.class);
+		query.equalTo("mFavorite", true);
+		List<Task> tasks = query.findAll();
+		return tasks;
+	}
+
+	public void updateTaskCompletedState(Task task) {
 		mRealm.beginTransaction();
 		Task taskToUpdate = mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
-		taskToUpdate.changeState();
+		taskToUpdate.changeCompletedState();
 		mRealm.commitTransaction();
 	}
 
@@ -95,6 +104,14 @@ public class TaskRepository {
 		mRealm.beginTransaction();
 		Task taskToChangePriority= mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
 		taskToChangePriority.setNextPriority();
+		mRealm.commitTransaction();
+	}
+
+
+	public void changeFavoriteState(Task task){
+		mRealm.beginTransaction();
+		Task taskToUpdate = mRealm.where(Task.class).equalTo("mId", task.getId()).findFirst();
+		taskToUpdate.changeFavoriteState();
 		mRealm.commitTransaction();
 	}
 

@@ -50,4 +50,6 @@ public interface ApiService {
     @POST("api/note/edit")
     Call<Task> editTask(@Header("authorization") String header, @Body Task taskToEdit);
 
+    @GET("api/note/{id}")
+    Call<Task> getNoteById(@Header("authorization") String header, @Path("id") String id);
 }

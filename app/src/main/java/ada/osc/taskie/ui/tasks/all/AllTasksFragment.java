@@ -10,7 +10,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +26,14 @@ import ada.osc.taskie.presentation.AllTasksPresenter;
 import ada.osc.taskie.ui.addTask.NewTaskActivity;
 import ada.osc.taskie.ui.tasks.adapter.TaskAdapter;
 import ada.osc.taskie.listener.TaskClickListener;
+import ada.osc.taskie.ui.tasks.divider.SimpleDividerItemDecoration;
+import ada.osc.taskie.util.SharedPrefsUtil;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AllTasksFragment extends Fragment implements AllTasksContract.View, TaskClickListener, ItemEventListener {
+public class AllTasksFragment extends Fragment implements AllTasksContract.View, MenuOptions ,TaskClickListener, ItemEventListener {
 
     private String ACTION_EDIT_TASK = "edit task action";
-    private String ACTION_NEW_TASK = "new task action";
 
     @BindView(R.id.tasks)
     RecyclerView tasks;
@@ -50,6 +50,9 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
     @Override
     public void onResume() {
         super.onResume();
+        if(App.isInternetConnection()){
+            presenter.updateTasksFromLocalBase();
+        }
         presenter.getTasks();
     }
 
@@ -63,6 +66,8 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
 
 
         taskAdapter = new TaskAdapter(this, this);
+
+        tasks.addItemDecoration(new SimpleDividerItemDecoration(getContext(), android.R.color.darker_gray));
 
         tasks.setLayoutManager(new LinearLayoutManager(getActivity()));
         tasks.setItemAnimator(new DefaultItemAnimator());
@@ -86,7 +91,6 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
         itemTouchHelper.attachToRecyclerView(tasks);
     }
 
-
     @Override
     public void showTasks(List<Task> tasks) {
         taskAdapter.updateTasks(tasks);
@@ -98,8 +102,8 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
     }
 
     @Override
-    public void onTaskRemoved(String taskId) {
-        Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT);
+    public void onTaskRemoved() {
+        Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -122,8 +126,9 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
                 R.string.delete,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
-                        presenter.deleteTask(task);
                         taskAdapter.removeTask(task.getId());
+                        presenter.deleteTask(task);
+
 
                     }
                 }
@@ -143,7 +148,6 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
 
     @Override
     public void onTaskSwipeRight(Task task) {
-
         startNewTaskActivityForEdit(task);
     }
 
@@ -157,7 +161,7 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
 
     @Override
     public void onClick(Task task) {
-
+        presenter.editTask(task);
     }
 
     @Override
@@ -171,13 +175,10 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
     }
 
     @Override
-    public void onPriorityColorClick(Task task) {
-
-    }
-
-    @Override
     public void onFavouriteTaskStarClick(Task task) {
-        presenter.setTaskFavorite(task);
+        taskAdapter.removeTask(task.getId());
+        presenter.setTaskToFavorite(task);
+
     }
 
     @Override
@@ -185,15 +186,18 @@ public class AllTasksFragment extends Fragment implements AllTasksContract.View,
 
     }
 
-
     @Override
     public void showTaskStateChangedToast() {
         Toast.makeText(getContext(), "Task changed state", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void showTaskStateChangedErrorToast() {
-        Toast.makeText(getContext(), "Task changed state error", Toast.LENGTH_SHORT).show();
+    public void sortTasksLowPriorityFirst() {
+        presenter.sortTasksLowPriorityFirst();
     }
 
+    @Override
+    public void sortTasksHighPriorityFirst() {
+        presenter.sortTasksHighPriorityFirst();
+    }
 }

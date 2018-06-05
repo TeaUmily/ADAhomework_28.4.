@@ -7,7 +7,8 @@ import android.preference.PreferenceManager;
 public class SharedPrefsUtil {
 
     public static final String TOKEN = "token";
-    public static final String TASK_PRIORITY_KEY ="task prioity";
+    public static final String TASK_PRIORITY_KEY ="task priority";
+    public static final String INTERNET_CONNECTION = "internet connection status";
 
     public static void storePreferencesField(Context context, String key,
                                              String value) {

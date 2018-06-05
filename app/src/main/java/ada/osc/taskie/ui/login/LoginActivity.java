@@ -10,6 +10,7 @@ import ada.osc.taskie.App;
 import ada.osc.taskie.R;
 import ada.osc.taskie.model.RegistrationToken;
 import ada.osc.taskie.presentation.LoginPresenter;
+import ada.osc.taskie.ui.register.RegisterActivity;
 import ada.osc.taskie.ui.tasks.mainActivity.TasksActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +24,7 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
     EditText mUserPwd;
 
     LoginContract.Presenter mPresenter;
+    private String REGISTER_ACTION = "register action";
 
 
     @Override
@@ -34,6 +36,8 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         mPresenter.setView(this);
 
         ButterKnife.bind(this);
+
+        getSupportActionBar().hide();
     }
 
 
@@ -42,11 +46,13 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         loginUser();
     }
 
-   /* @OnClick(R.id.button_register)
+    @OnClick(R.id.registration_button)
     void onRegisterButtonClick() {
 
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", true).commit();
+        startActivity(new Intent(this, RegisterActivity.class));
     }
-*/
+
     private void loginUser() {
         RegistrationToken login = new RegistrationToken("", mUserEmail.getText().toString(), mUserPwd.getText().toString());
         mPresenter.loginUser(login);

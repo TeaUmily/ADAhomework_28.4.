@@ -12,13 +12,12 @@ public interface AllTasksContract {
 
         void showMoreTasks(List<Task> tasks);
 
-        void onTaskRemoved(String taskId);
+        void onTaskRemoved();
 
         void onTaskFavoriteStateChanged(String taskId);
 
         void showTaskStateChangedToast();
 
-        void showTaskStateChangedErrorToast();
 
 
     }
@@ -31,9 +30,18 @@ public interface AllTasksContract {
 
         void deleteTask(Task task);
 
-        void setTaskFavorite(Task task);
+        void setTaskToFavorite(Task task);
 
         void changeTaskCompleted(Task task);
 
+        void sortTasksLowPriorityFirst();
+
+        void sortTasksHighPriorityFirst();
+
+        void editTask(Task task);
+
+        void updateTasksFromLocalBase();
+
+        void updateTask(Task task);
     }
 }

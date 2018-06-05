@@ -7,13 +7,17 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
+import io.realm.annotations.Required;
 
 @RealmClass
 public class Task extends RealmObject  implements Serializable{
 
 	private static int sID = 0;
 
+	@Required
+	@PrimaryKey
 	@Expose
 	@SerializedName("id")
 	private String mId;
@@ -97,7 +101,7 @@ public class Task extends RealmObject  implements Serializable{
 		}
 	}
 
-	public void changeState() {
+	public void changeCompletedState() {
 		if(this.isCompleted()){
 			this.setCompleted(false);
 		}
@@ -129,5 +133,14 @@ public class Task extends RealmObject  implements Serializable{
 	public void setFavorite(boolean mFavorite) {
 		this.mFavorite = mFavorite;
 
+	}
+
+	public void changeFavoriteState() {
+		if(this.isFavorite()){
+			this.setFavorite(false);
+		}
+		else {
+			this.setFavorite(true);
+		}
 	}
 }

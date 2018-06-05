@@ -32,8 +32,9 @@ import butterknife.OnClick;
 
 public class NewTaskActivity extends AppCompatActivity implements NewTaskContract.View {
 
-	public static String EXTRA_TASK ="task";
-	private String ACTION_EDIT_TASK= "edit task action";
+	public static String EXTRA_TASK = "task";
+	private String ACTION_EDIT_TASK = "edit task action";
+	private String ACTION_NEW_TASK = "new task action";
 
 	@BindView(R.id.edittext_newtask_title)	EditText mTitleEntry;
 	@BindView(R.id.edittext_newtask_description) EditText mDescriptionEntry;
@@ -45,9 +46,9 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 
 
 	DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-	//TaskRepository mTaskRepository = TaskRepository.getInstance();
 	CategoryRepository mCategoryRepository = CategoryRepository.getInstance();
 	Intent intent;
+
 
 
 
@@ -57,7 +58,6 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 		setContentView(R.layout.activity_new_task);
 		ButterKnife.bind(this);
 
-		setUpSpinnerSource();
 		setUpCategoryAutoCompletedTV();
 
 		mPresenter = new NewTaskPresenter(App.getPreferences(), App.getApiInteractor());
@@ -65,8 +65,25 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 
 		intent = getIntent();
 		if(intent.getAction().equals(ACTION_EDIT_TASK)){
+			setUpSpinnerOnTaskPriorityValue();
 			setViewsToTaskValues();
 		}
+		else {
+			setUpSpinnerSource();
+		}
+
+
+
+
+	}
+
+	private void setUpSpinnerOnTaskPriorityValue() {
+		mPriorityEntry.setAdapter(
+				new ArrayAdapter<TaskPriority>(
+						this, android.R.layout.simple_list_item_1, TaskPriority.values()
+				)
+		);
+		mPriorityEntry.setSelection(0);
 	}
 
 	private void setUpCategoryAutoCompletedTV() {
@@ -103,13 +120,12 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 	public void setViewsToTaskValues(){
 
 		Task task =(Task) intent.getSerializableExtra(EXTRA_TASK);
-		//String id = intent.getStringExtra(EXTRA_TASK_ID);
-
-		//Task task = mTaskRepository.getTaskById(id);
 
 		mTitleEntry.setText(task.getTitle());
 		mDescriptionEntry.setText(task.getDescription());
-		mPriorityEntry.setSelection(task.getPriority());
+
+		mPriorityEntry.setSelection(task.getPriority()-1);
+
 		mDueDate.setText(task.getDueDate());
 		mCategory.setText(task.getCategory());
 
@@ -135,38 +151,29 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 
 			SharedPrefsUtil.storePreferencesField(this, SharedPrefsUtil.TASK_PRIORITY_KEY, priority.toString());
 
+
 			checkDateInput(date);
 
 			if(intent.getAction().equals(ACTION_EDIT_TASK)){
 
 				Task task =(Task) intent.getSerializableExtra(EXTRA_TASK);
-				//Realm realm = Realm.getDefaultInstance();
+
 
                 task.setTitle(title);
                 task.setDescription(description);
                 task.setPriority(priority.getValue());
-                task.setDueDate(date.toString());
+                task.setDueDate(date_str);
                 task.setCategory(category);
 
-				/*realm.beginTransaction();
-				mTaskRepository.getTaskById(id).setTitle(title);
-				mTaskRepository.getTaskById(id).setDescription(description);
-				mTaskRepository.getTaskById(id).setTaskPriorityEnum(priority);
-				mTaskRepository.getTaskById(id).setDueDate(date);
-				mTaskRepository.getTaskById(id).setCategory(mCategory.getText().toString());
-				realm.commitTransaction();*/
-
-				//mTaskRepository.updateTask(mTaskRepository.getTaskById(id));
                 mPresenter.editTask(task);
 				finish();
 			}
 
-			//if(intent.getAction().equals(ACTION_NEW_TASK)){
+			if(intent.getAction().equals(ACTION_NEW_TASK)){
 				Task newTask = new Task(title, description, priority, date_str);
-				//mTaskRepository.saveTask(newTask);
 				mPresenter.createTask(newTask);
 				finish();
-			//}
+			}
 
 		}catch (EmptyFieldException e){
 
@@ -186,12 +193,13 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 		}
 	}
 
-	private void checkDateInput(Date date)throws InvalidDateException {
+	private void checkDateInput(Date date) throws InvalidDateException {
 		Date today = new Date();
 
-		if(date.compareTo(today) < 0){
-			throw new InvalidDateException("Invalid date!");
-		}
+			if(date.compareTo(today) < 0){
+				throw new InvalidDateException("Invalid date!");
+			}
+
 	}
 
 
@@ -241,5 +249,10 @@ public class NewTaskActivity extends AppCompatActivity implements NewTaskContrac
 	@Override
 	public void showTaskError() {
 		Toast.makeText(this, "Task is invalid", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onGetTaskById(Task task) {
+
 	}
 }

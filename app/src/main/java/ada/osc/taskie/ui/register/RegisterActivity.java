@@ -9,17 +9,11 @@ import android.widget.Toast;
 import ada.osc.taskie.App;
 import ada.osc.taskie.R;
 import ada.osc.taskie.model.RegistrationToken;
-import ada.osc.taskie.networking.ApiService;
-import ada.osc.taskie.networking.RetrofitUtil;
 import ada.osc.taskie.presentation.RegisterPresenter;
 import ada.osc.taskie.ui.login.LoginActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class RegisterActivity extends AppCompatActivity implements RegisterContract.View {
 
@@ -32,15 +26,15 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
 
     private RegisterContract.Presenter mPresenter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        ButterKnife.bind(this);
+
         mPresenter = new RegisterPresenter(App.getApiInteractor());
         mPresenter.setView(this);
-
 
         Boolean isFirstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getBoolean("isFirstRun", true);
@@ -52,16 +46,23 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
         getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
                 .putBoolean("isFirstRun", false).commit();
 
-
-        ButterKnife.bind(this);
+        getSupportActionBar().hide();
     }
 
-    @OnClick(R.id.button_login)
-    void onLoginButtonClick(){
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @OnClick(R.id.login_textview)
+    void onLoginTextClick(){
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
+                .putBoolean("isFirstRun", false).commit();
         startLoginActivity();
     }
 
-    @OnClick(R.id.button_register)
+    @OnClick(R.id.registration_button)
     void onRegisterButtonClick() {
         registerUser();
     }
@@ -88,6 +89,8 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
 
     @Override
     public void onUserRegistered() {
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
+                .putBoolean("isFirstRun", false).commit();
         startActivity(new Intent(this, LoginActivity.class));
     }
 

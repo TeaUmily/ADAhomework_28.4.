@@ -31,20 +31,25 @@ public class LoginPresenter implements LoginContract.Presenter {
 
     @Override
     public void loginUser(RegistrationToken login) {
-        mApiInteractor.loginUser(login, getLoginCallback());
+        if (!login.email.isEmpty()
+                && !login.password.isEmpty()) {
+            mApiInteractor.loginUser(login, getLoginCallback());
+        } else {
+            mLoginView.showUserInvalidError();
+        }
+
     }
 
     private Callback<LoginResponse> getLoginCallback() {
         return new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null ) {
                     mPreferences.edit().putString(SharedPrefsUtil.TOKEN, response.body().mToken).apply();
 
                     mLoginView.onUserLoggedIn();
                 }
             }
-
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 mLoginView.showNetworkError();

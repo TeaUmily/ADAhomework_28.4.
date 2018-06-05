@@ -4,7 +4,8 @@
 
     <item android:title="@string/sort"
         app:showAsAction= "never"
-        android:id="@+id/sort_option">
+        android:id="@+id/sort_option"
+        >
         <menu>
             <item
                 android:id="@+id/highPriority_first_sort"
@@ -15,24 +16,6 @@
                 android:id="@+id/lowPriority_first_sort"
                 app:showAsAction="never"
                 android:title="@string/low_priority_first"/>
-        </menu>
-    </item>
-
-    <item android:title="@string/filter_show"
-        app:showAsAction="never"
-        android:id="@+id/filter_option">
-        <menu>
-            <item
-                android:id="@+id/uncompleted_filter"
-                android:title="@string/uncompleted"
-                app:showAsAction="never"
-                />
-            <item
-                android:id="@+id/all_filter"
-                android:title="@string/all"
-                app:showAsAction="never"
-
-            />
         </menu>
     </item>
 </menu>

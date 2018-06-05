@@ -4,6 +4,7 @@ import ada.osc.taskie.model.LoginResponse;
 import ada.osc.taskie.model.RegistrationToken;
 import ada.osc.taskie.model.Task;
 import ada.osc.taskie.model.TaskList;
+import retrofit2.Call;
 import retrofit2.Callback;
 
 public interface ApiInteractor {
@@ -28,6 +29,8 @@ public interface ApiInteractor {
         void chaneTaskFavouriteState(Task task, Callback<Task> callback, String token);
 
         void editTask(Task task, Callback<Task> callback, String token);
+
+        void getNoteById(String id, Callback<Task> callback, String token);
 
 
 

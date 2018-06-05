@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#9fff">
+
     <ImageView
         android:id="@+id/imageview_task_priority"
         android:layout_width="@dimen/task_taskPriority_width"
@@ -15,31 +17,40 @@
         android:src="@color/taskPriority_Unknown"/>
     <TextView
         android:id="@+id/textview_task_title"
+        android:fontFamily="@font/artifika"
+        android:textColor="#cc391326"
+        android:maxLines="1"
         android:layout_width="match_parent"
+        android:layout_marginLeft="5dp"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/imageview_task_priority"
-        android:layout_toStartOf="@id/imageview_task_priority"
-        android:textSize="@dimen/textSize_large"/>
+        android:layout_toLeftOf="@id/toggleButton"
+        android:textSize="@dimen/textSize_normal"/>
     <TextView
         android:id="@id/textview_task_description"
         android:layout_width="match_parent"
+        android:fontFamily="@font/artifika"
+        android:maxLines="1"
+        android:layout_marginLeft="5dp"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/imageview_task_priority"
-        android:layout_toStartOf="@id/imageview_task_priority"
+        android:layout_toLeftOf="@id/fav_star_imageview"
         android:layout_below="@id/textview_task_title"
-        android:textSize="@dimen/textSize_normal"/>
+        android:textSize="15dp"/>
 
     <ImageView
         android:id="@+id/fav_star_imageview"
         android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageview_task_priority"
-        android:layout_toLeftOf="@+id/imageview_task_priority"
+        android:layout_marginLeft="5dp"
+        android:layout_toLeftOf="@id/toggleButton"
         android:src="@drawable/fav_star_icon" />
 
     <TextView
         android:id="@+id/textview_task_dueDate"
         android:layout_width="match_parent"
+        android:fontFamily="@font/artifika"
+        android:layout_marginLeft="5dp"
+        android:textColor="#8000"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textview_task_description"
         android:layout_toLeftOf="@id/imageview_task_priority"
@@ -48,12 +59,17 @@
 
     <ToggleButton
         android:id="@+id/toggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
         android:layout_toLeftOf="@+id/imageview_task_priority"
-        android:textSize="@dimen/textSize_small"
-        android:textOn="completed"
-        android:textOff="uncompleted" />
+        android:layout_margin="5dp"
+        android:textOff="TO DO"
+        android:textOn="DONE"
+        android:textColor="@color/transparent_white_color"
+        android:layout_centerInParent="true"
+        android:background="@color/brown_transparent"
+        android:textStyle="bold"
+        android:fontFamily="@font/artifika"
+        android:textSize="15sp" />
 
 </RelativeLayout>

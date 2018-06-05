@@ -2,6 +2,7 @@ package ada.osc.taskie.ui.tasks.completed;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,12 +26,16 @@ import ada.osc.taskie.listener.TaskClickListener;
 import ada.osc.taskie.model.Task;
 import ada.osc.taskie.presentation.AllTasksPresenter;
 import ada.osc.taskie.presentation.CompletedTasksPresenter;
+import ada.osc.taskie.ui.addTask.NewTaskActivity;
 import ada.osc.taskie.ui.tasks.adapter.TaskAdapter;
 import ada.osc.taskie.ui.tasks.all.AllTasksContract;
+import ada.osc.taskie.ui.tasks.divider.SimpleDividerItemDecoration;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class CompletedTasksFragment extends Fragment implements CompletedTasksContract.View, ItemEventListener, TaskClickListener {
+
+    private String ACTION_EDIT_TASK = "edit task action";
 
     @BindView(R.id.tasks)
     RecyclerView tasks;
@@ -38,6 +43,7 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
     private TaskAdapter taskAdapter;
 
     private CompletedTasksContract.Presenter presenter;
+
 
     @Nullable
     @Override
@@ -56,6 +62,8 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
 
 
         taskAdapter = new TaskAdapter(this, this);
+
+        tasks.addItemDecoration(new SimpleDividerItemDecoration(getContext(), android.R.color.darker_gray));
 
         tasks.setLayoutManager(new LinearLayoutManager(getActivity()));
         tasks.setItemAnimator(new DefaultItemAnimator());
@@ -80,7 +88,6 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
         itemTouchHelper.attachToRecyclerView(tasks);
     }
 
-
     @Override
     public void showTasks(List<Task> tasks) {
         taskAdapter.updateTasks(tasks);
@@ -88,7 +95,7 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
 
     @Override
     public void updateView() {
-        taskAdapter.notifyDataSetChanged();
+        presenter.getTasks();
     }
 
     @Override
@@ -97,19 +104,10 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
     }
 
     @Override
-    public void onTaskRemoved(String taskId) {
-        taskAdapter.removeTask(taskId);
+    public void onTaskRemoved() {
+        Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onTaskFavoriteStateChanged(String taskId) {
-        // TODO: 19/05/2018 add logic for this
-    }
-
-    @Override
-    public void onTaskCompletedStateChange(String taskId) {
-
-    }
 
 
     @Override
@@ -148,30 +146,39 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
         ad.show();
     }
 
+
     @Override
     public void onTaskSwipeRight(Task task) {
+        startNewTaskActivityForEdit(task);
+    }
 
+    public void startNewTaskActivityForEdit(Task task){
+        Intent editTask = new Intent();
+        editTask.setAction(ACTION_EDIT_TASK);
+        editTask.setClass(getContext(), NewTaskActivity.class);
+        editTask.putExtra(NewTaskActivity.EXTRA_TASK, task);
+        startActivity(editTask);
     }
 
     @Override
     public void onClick(Task task) {
-
+        presenter.editTask(task);
     }
 
     @Override
     public void onToggleClick(Task task) {
-
+        if(!task.isCompleted()){
+            presenter.changeTaskCompleted(task);
+        }
+        else {
+            presenter.changeTaskCompleted(task);
+        }
     }
 
-
-    @Override
-    public void onPriorityColorClick(Task task) {
-
-    }
 
     @Override
     public void onFavouriteTaskStarClick(Task task) {
-        taskAdapter.onFavouriteTaskStarClick();
+        presenter.changeTaskFavorite(task);
     }
 
     @Override
@@ -179,6 +186,10 @@ public class CompletedTasksFragment extends Fragment implements CompletedTasksCo
 
     }
 
+    @Override
+    public void onTaskCompletedStateChange() {
+        Toast.makeText(getContext(), "Task changed state", Toast.LENGTH_SHORT).show();
+    }
 
 
 }

@@ -67,4 +67,9 @@ public class ApiInteractorImpl implements ApiInteractor{
         mApiService.editTask(token,task).enqueue(callback);
     }
 
+    @Override
+    public void getNoteById(String id, Callback<Task> callback, String token) {
+        mApiService.getNoteById(token, id).enqueue(callback);
+    }
+
 }
